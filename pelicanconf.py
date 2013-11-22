@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
 
+import os
+
 AUTHOR = u'Jan Müller'
 SITENAME = u'luft·mensch'
 SITESUBTITLE = u'One more concerned with intellectual pursuits than practical matters.'
@@ -19,12 +21,18 @@ TRANSLATION_FEED_ATOM = None
 THEME = 'pelican-bootstrap3'
 BOOTSTRAP_THEME = 'cosmo'
 
+STATIC_PATHS = (
+    'images',
+    'code',
+    'theme'
+)
+
 LINKS =  ()
 
 SOCIAL = (
     ('github', 'https://github.com/nikipore'),
 )
-TAG_CLOUD_MAX_ITEMS = 15
+TAG_CLOUD_MAX_ITEMS = 10
 
 DEFAULT_PAGINATION = 10
 
@@ -42,11 +50,6 @@ MONTH_ARCHIVE_SAVE_AS = 'blog/{date:%Y}/{date:%m}/index.html'
 GITHUB_USER = 'nikipore'
 GITHUB_SKIP_FORK = False
 
-STATIC_PATHS = (
-    'images',
-    'code'
-)
-
 """
 plugins
 """
@@ -63,4 +66,3 @@ CODE_DIR = 'code'
 format
 """
 TYPOGRIFY = True
-
