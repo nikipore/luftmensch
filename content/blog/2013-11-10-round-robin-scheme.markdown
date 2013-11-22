@@ -18,7 +18,7 @@ def roundrobin(*iterables):
 
 You also see a recipe for a "sentinel", that is, a unique value which helps to find the end of a sequence, filter out unneeded values, etc. People tend to use things such as `None` for this, but this way you never can be sure that this particular `None` you're coming across just now is not a non-sentinel. The simplest way to define a unique object is to instantiate an `object` (sic) and use the `is` comparison to identify it. A little test-drive confirms that it works as announced:
 
-```
+``` python
 >>> list(roundrobin('ABC', 'D', 'EF'))
 ['A', 'D', 'E', 'B', 'F', 'C']
 ```
