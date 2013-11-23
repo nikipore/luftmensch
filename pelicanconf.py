@@ -32,7 +32,7 @@ LINKS =  ()
 SOCIAL = (
     ('github', 'https://github.com/nikipore'),
 )
-TAG_CLOUD_MAX_ITEMS = 10
+TAG_CLOUD_MAX_ITEMS = 100
 
 DEFAULT_PAGINATION = 10
 
@@ -49,6 +49,9 @@ MONTH_ARCHIVE_SAVE_AS = 'blog/{date:%Y}/{date:%m}/index.html'
 
 GITHUB_USER = 'nikipore'
 GITHUB_SKIP_FORK = False
+GITHUB_REPO_COUNT = 10
+GITHUB_SORT_ATTRIBUTE = 'stargazers_count'
+GITHUB_SORT_DESCENDING = True
 
 """
 plugins

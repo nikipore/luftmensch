@@ -3,7 +3,7 @@ Date: 2013-11-10 09:18
 Category: blog
 Tags: python, recipes, itertools, round-robin, sentinel
 
-Since I already was at improving [`itertools`](http://docs.python.org/library/itertools.html) recipes in the [last post](/blog/2013/11/09/iterate-in-chunks/), there is a recipe for [round-robin consuming of iterables](http://docs.python.org/library/itertools.html#recipes) which can be written much more concise and yet -- to the functional programmer's eye -- more clearly:
+Since I already was at improving [`itertools`](http://docs.python.org/library/itertools.html) recipes in the [last post]({filename}2013-11-09-iterate-in-chunks.markdown), there is a recipe for [round-robin consuming of iterables](http://docs.python.org/library/itertools.html#recipes) which can be written much more concise and yet -- to the functional programmer's eye -- more clearly:
 
 ``` python
 from itertools import chain, izip_longest
