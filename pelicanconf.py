@@ -19,7 +19,7 @@ CATEGORY_FEED_ATOM = None
 TRANSLATION_FEED_ATOM = None
 
 THEME = 'pelican-bootstrap3'
-BOOTSTRAP_THEME = 'cosmo'
+BOOTSTRAP_THEME = 'luftmensch'
 
 STATIC_PATHS = (
     'images',
