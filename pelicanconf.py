@@ -33,6 +33,7 @@ SOCIAL = (
     ('github', 'https://github.com/nikipore'),
 )
 TAG_CLOUD_MAX_ITEMS = 100
+TAG_LIST_SEPARATOR = u'·'
 
 DEFAULT_PAGINATION = 10
 
@@ -68,3 +69,4 @@ PLUGINS += (
 format
 """
 TYPOGRIFY = True
+
