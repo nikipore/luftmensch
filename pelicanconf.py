@@ -30,10 +30,11 @@ STATIC_PATHS = (
 LINKS =  ()
 
 SOCIAL = (
-    ('github', 'https://github.com/nikipore'),
+    ('feed', 'rss', '/feeds/all.atom.xml'),
+    ('github', 'github', 'https://github.com/nikipore')
 )
 TAG_CLOUD_MAX_ITEMS = 100
-TAG_LIST_SEPARATOR = u'·'
+TAG_LIST_SEPARATOR = u''
 
 DEFAULT_PAGINATION = 10
 
@@ -48,7 +49,7 @@ ARTICLE_SAVE_AS = 'blog/{date:%Y}/{date:%m}/{date:%d}/{slug}/index.html'
 YEAR_ARCHIVE_SAVE_AS = 'blog/{date:%Y}/index.html'
 MONTH_ARCHIVE_SAVE_AS = 'blog/{date:%Y}/{date:%m}/index.html'
 
-GITHUB_USER = 'nikipore'
+GITHUB_USER = ''
 GITHUB_SKIP_FORK = False
 GITHUB_REPO_COUNT = 10
 GITHUB_SORT_ATTRIBUTE = 'stargazers_count'
