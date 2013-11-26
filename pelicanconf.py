@@ -29,6 +29,10 @@ STATIC_PATHS = (
 
 LINKS =  ()
 
+MENUITEMS = (
+    ('archives', '/archives.html'),
+)
+
 SOCIAL = (
     ('feed', 'rss', '/feeds/all.atom.xml'),
     ('github', 'github', 'https://github.com/nikipore')
