@@ -18,13 +18,12 @@ FEED_ALL_ATOM = None
 CATEGORY_FEED_ATOM = None
 TRANSLATION_FEED_ATOM = None
 
-THEME = 'pelican-bootstrap3'
+THEME = 'bootstrap3'
 BOOTSTRAP_THEME = 'luftmensch'
 
 STATIC_PATHS = (
     'images',
-    'code',
-    'theme'
+    'code'
 )
 
 LINKS =  ()
