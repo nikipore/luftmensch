@@ -3,9 +3,9 @@ Date: 2013-10-09 19:57
 Category: blog
 Tags: python, decorator, profile
 
-You probably have heard of the term *premature optimization*. It refers to writing "fast" code which is more obfuscated and (more often than not) slower than a straightforward approach --- before you have bothered to measure whether it really pays off to spend your cerebral CPU time (which is usually much more precious than its electronic counterpart) on such optimizations. It turns out that most of the time the bottleneck lurks in a place you would never have imagined, typically some primitive function call which just gets called a couple of zillion times.
+You probably have heard of the term *premature optimization*. It refers to writing "fast" code which is more obfuscated and (more often than not) slower than a straightforward approach -- before you have bothered to measure whether it really pays off to spend your cerebral CPU time (which is usually much more precious than its electronic counterpart) on such optimizations. It turns out that most of the time the bottleneck lurks in a place you would never have imagined, typically some primitive function call which just gets called a couple of zillion times.
 
-For instance, I've been able to achieve speedups of productive code by factors of 2 and even 10 by identifying millions of database lookups --- each of them highly optimized --- and replacing that by some smarter algorithm like "fetch all relevant data in one query and only once". When confronted with the culprit, the seasoned programmer would usually be rather surprised. Trust me, 3 out of 4 programmers never measure and prefer drawing you into discussions on how to make this and that faster instead on how to make this work at all.
+For instance, I've been able to achieve speedups of productive code by factors of 2 and even 10 by identifying millions of database lookups -- each of them highly optimized -- and replacing that by some smarter algorithm like "fetch all relevant data in one query and only once". When confronted with the culprit, the seasoned programmer would usually be rather surprised. Trust me, 3 out of 4 programmers never measure and prefer drawing you into discussions on how to make this and that faster instead on how to make this work at all.
 
 So how do you measure, then? As so often, the answer is in the standard library, in a module called [`profile`](http://docs.python.org/2/library/profile.html). What is missing for many people is to lower their activation energy by some convenient one-liner to rule all them functions. Enter the `@profiler` decorator:
 
@@ -27,7 +27,7 @@ def profiler(filename):
     return _profiler
 ```
 
-Using this decorator, it is straightforward to mostly eliminate the boilerplate code for --- and hence the lame excuses for not --- profiling virtually any piece of Python code:
+Using this decorator, it is straightforward to mostly eliminate the boilerplate code for -- and hence the lame excuses for not -- profiling virtually any piece of Python code:
 
 ``` python
 def factorial(n):
@@ -37,7 +37,7 @@ profiled_factorial = profiler('/tmp/profile.txt')(factorial)
 profiled_factorial(500)
 ```
 
-This will write a binary raw profile to `/tmp/profile.txt`. I usually decorate a function fairly high in the hierarchy, something like a `main()` call, and I introduce some --- environment variable or command-line --- switch which enables profiling any time I wish. You will be amazed, it typically delivers the bottleneck right away.
+This will write a binary raw profile to `/tmp/profile.txt`. I usually decorate a function fairly high in the hierarchy, something like a `main()` call, and I introduce some -- environment variable or command-line -- switch which enables profiling any time I wish. You will be amazed, it typically delivers the bottleneck right away.
 
 But how do I extract human-readable information, then, I hear you ask? The short answer is: have a deeper look at the Python docs. Here is one quick-and-dirty way to get you going:
 
