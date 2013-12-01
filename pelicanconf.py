@@ -73,4 +73,4 @@ PLUGINS += (
 format
 """
 TYPOGRIFY = True
-
+MD_EXTENSIONS = (['codehilite(css_class=highlight)','extra'])
