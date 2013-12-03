@@ -45,18 +45,18 @@ A simple decorator function does the job without the need for a spurious parent 
 A simple test run follows:
 
 ``` python
-    @multipleton
-    class A(object):
-        def __init__(self, *args):
-            import time
-            time.sleep(0.01)
+@multipleton
+class A(object):
+    def __init__(self, *args):
+        import time
+        time.sleep(0.01)
 
-    from multiprocessing.pool import ThreadPool
-    pool = ThreadPool(2)
-    results = [pool.apply_async(A) for _ in xrange(2)]
-    instances = set(r.get() for r in results)
+from multiprocessing.pool import ThreadPool
+pool = ThreadPool(2)
+results = [pool.apply_async(A) for _ in xrange(2)]
+instances = set(r.get() for r in results)
 
-    print instances
+print instances
 ```
 
 You will see that there is only one instance, although two threads tried to create that instance concurrently. Observe what happens when you remove the line with the `with` statement.
