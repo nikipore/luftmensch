@@ -8,7 +8,6 @@ import os
 env.build_path = 'output'
 env.content_path = 'content'
 env.dist_path = 'dist'
-env.stage_path = 'stage'
 
 # Remote server configuration
 production = 'nikipore@pavo.uberspace.de:22'
@@ -17,12 +16,7 @@ dest_path = '/var/www/virtual/nikipore/html/'
 env.s3 = 'luftmensch'
 env.s3_stage = 'staging.luftmensch'
 
-COMPRESS_PATTERN = (
-    ('*.html', 'text/html'),
-    ('*.xml', 'application/xml'),
-    ('*.css', 'text/css'),
-    ('*.js', 'text/javascript')
-)
+COMPRESS_PATTERN = ('*.html', '*.xml', '*.css', '*.js')
 
 def clean():
     for path in (env.build_path, env.dist_path):
@@ -48,19 +42,32 @@ def reserve():
 
 def dist():
     local('pelican -d -s publishconf.py -o {dist_path} {content_path}'.format(**env))
-    local('find {dist_path} -name .DS_Store -exec rm {{}} \;'.format(**env))
     local('rm -rf {dist_path}/theme/.webassets-cache'.format(**env))
+    local("find {dist_path} -name '.DS_Store' -exec rm {{}} \;".format(**env))
 
 def compress():
-    for (root, subdirs, _) in os.walk(env.dist_path):
-        for (pattern, _) in COMPRESS_PATTERN:
-            for filename in glob.glob(os.path.join(root, pattern)):
-                local('gzip -9n {0} && mv {0}.gz {0}'.format(filename))
+    local("find {dist_path} {conditions} -exec gzip -9n {{}} \; -exec mv {{}}.gz {{}} \;".format(
+        dist_path=env.dist_path,
+        conditions='\( {0} \)'.format(' -o '.join("-name '{0}'".format(pattern) for pattern in COMPRESS_PATTERN))
+    ))
 
-def stage():
-    local('rsync --checksum --delete --recursive {dist_path}/ {stage_path}/'.format(
-        dist_path=env.dist_path.rstrip('/'),
-        stage_path=env.stage_path.rstrip('/')
+def s3(bucket):
+    dist()
+    compress()
+
+    flags = '--progress --acl-public'
+
+    local("s3cmd sync {path}/ s3://{bucket}/ {flags} --exclude=*.* {include} --add-header='Content-Encoding:gzip'".format(
+        path=env.dist_path.rstrip('/'),
+        bucket=bucket,
+        flags=flags,
+        include=' '.join('--include={0}'.format(pattern) for pattern in COMPRESS_PATTERN)
+    ))
+
+    local("s3cmd sync {path}/ s3://{bucket}/ {flags} --delete-removed".format(
+        path=env.dist_path.rstrip('/'),
+        bucket=bucket,
+        flags=flags
     ))
 
 def s3_stage():
@@ -68,28 +75,6 @@ def s3_stage():
 
 def s3_publish():
     s3(env.s3_publish)
-
-def s3(bucket):
-    dist()
-    compress()
-    stage()
-    flags = '--progress --acl-public'
-
-    for (pattern, mime_type) in COMPRESS_PATTERN:
-        local("s3cmd sync {path}/ s3://{bucket}/ {flags} --exclude=*.* --include={pattern} --mime-type={mime_type} --add-header='Content-Encoding:gzip'".format(
-            path=env.stage_path.rstrip('/'),
-            bucket=bucket,
-            flags=flags,
-            pattern=pattern,
-            mime_type=mime_type
-        ))
-
-    local("s3cmd sync {path}/ s3://{bucket}/ {flags} -M {exclude}".format(
-        path=env.stage_path.rstrip('/'),
-        bucket=bucket,
-        flags=flags,
-        exclude=' '.join('--exclude={0}'.format(pattern) for (pattern, _) in COMPRESS_PATTERN)
-    ))
 
 @hosts(production)
 def publish():
