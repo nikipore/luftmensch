@@ -3,7 +3,7 @@ Date: 2013-11-09 09:07
 Category: blog
 Tags: python, itertools, chunks, iterator, recipes
 
-A common idion is to consume an iterable in chunks. There is a [whole lot of ways to do it](http://stackoverflow.com/questions/434287/what-is-the-most-pythonic-way-to-iterate-over-a-list-in-chunks), but most of them are either a bit clumsy, or they return the chunks in a non-lazy fashion, which breaks the generator idiom. There is even a [recipe](http://docs.python.org/library/itertools.html#recipes) in the standard documentation of the [`itertools`](http://docs.python.org/library/itertools.html) module which is still the best I could find:
+A common idiom is to consume an iterable in chunks. There are a [whole lot of ways to do it](http://stackoverflow.com/questions/434287/what-is-the-most-pythonic-way-to-iterate-over-a-list-in-chunks), but most of them are either a bit clumsy, or they return the chunks in a non-lazy fashion, which breaks the generator idiom. There is even a [recipe](http://docs.python.org/library/itertools.html#recipes) in the standard documentation of the [`itertools`](http://docs.python.org/library/itertools.html) module which is still the best I could find:
 
 ``` python
 from itertools import izip_longest

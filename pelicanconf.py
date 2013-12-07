@@ -58,11 +58,15 @@ GITHUB_REPO_COUNT = 10
 GITHUB_SORT_ATTRIBUTE = 'stargazers_count'
 GITHUB_SORT_DESCENDING = True
 
+WEBASSETS = True
+
 """
 plugins
 """
 PLUGIN_PATH = '../pelican-plugins'
 PLUGINS = ()
+
+PLUGINS += ('assets', 'optimize_images')
 
 PLUGINS += (
     'liquid_tags.img', 'liquid_tags.video', 'liquid_tags.youtube'

@@ -1,0 +1,3 @@
+#!/bin/bash
+gzip -9nr dist/
+find dist/ -name '*.gz' | sed -e 's/\(\(.*\)\.gz\)$/mv \1 \2/g' | bash
