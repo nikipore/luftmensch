@@ -52,28 +52,31 @@ def compress():
         conditions='\( {0} \)'.format(' -o '.join("-name '{0}'".format(pattern) for pattern in COMPRESS_PATTERN))
     ))
 
-def _s3(bucket):
-    flags = '--progress --acl-public'
+def _s3(bucket, options=None):
+    options = ' '.join(options or [])
 
-    local("s3cmd sync {path}/ s3://{bucket}/ {flags} --exclude=*.* {include} --add-header='Content-Encoding:gzip'".format(
+    local("s3cmd sync {path}/ s3://{bucket}/ {options} --exclude=*.* {include} --add-header='Content-Encoding:gzip'".format(
         path=env.dist_path.rstrip('/'),
         bucket=bucket,
-        flags=flags,
+        options=options,
         include=' '.join('--include={0}'.format(pattern) for pattern in COMPRESS_PATTERN)
     ))
 
-    local("s3cmd sync {path}/ s3://{bucket}/ {flags} --delete-removed --cf-invalidate".format(
+    local("s3cmd sync {path}/ s3://{bucket}/ {options} --delete-removed".format(
         path=env.dist_path.rstrip('/'),
         bucket=bucket,
-        flags=flags
+        options=options
     ))
 
 def stage():
     dist('stageconf.py')
     compress()
-    _s3(env.stage)
+    _s3(env.stage, ('--no-progress', '--acl-public'))
 
 def publish():
     dist()
     compress()
-    _s3(env.production)
+    _s3(
+        env.production,
+        ('--no-progress', '--acl-public', '--cf-invalidate', "--add-header='Cache-Control:max-age 86400'")
+    )
