@@ -8,15 +8,9 @@ from __future__ import unicode_literals
 import os
 import sys
 sys.path.append(os.curdir)
-from pelicanconf import *
+from stageconf import *
 
-SITEURL = 'https://luftmensch.net'
-#SITEURL = 'http://staging.luftmensch.s3-website-us-east-1.amazonaws.com'
-
-RELATIVE_URLS = False
-
-FEED_ALL_ATOM = 'feeds/all.atom.xml'
-CATEGORY_FEED_ATOM = 'feeds/%s.atom.xml'
+SITEURL = 'http://luftmensch.net'
 
 ADDTHIS_PROFILE = 'luftmensch'
 DISQUS_SITENAME = 'luftmensch'

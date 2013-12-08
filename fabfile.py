@@ -10,11 +10,8 @@ env.content_path = 'content'
 env.dist_path = 'dist'
 
 # Remote server configuration
-production = 'nikipore@pavo.uberspace.de:22'
-dest_path = '/var/www/virtual/nikipore/html/'
-
-env.s3 = 'luftmensch'
-env.s3_stage = 'staging.luftmensch'
+env.production = 'luftmensch.net'
+env.stage = 'staging.luftmensch.net'
 
 COMPRESS_PATTERN = ('*.html', '*.xml', '*.css', '*.js')
 
@@ -40,8 +37,12 @@ def reserve():
     build()
     serve()
 
-def dist():
-    local('pelican -d -s publishconf.py -o {dist_path} {content_path}'.format(**env))
+def dist(config='publishconf.py'):
+    local('pelican -d -s {config} -o {dist_path} {content_path}'.format(
+        config=config,
+        dist_path=env.dist_path,
+        content_path=env.content_path
+    ))
     local('rm -rf {dist_path}/theme/.webassets-cache'.format(**env))
     local("find {dist_path} -name '.DS_Store' -exec rm {{}} \;".format(**env))
 
@@ -51,10 +52,7 @@ def compress():
         conditions='\( {0} \)'.format(' -o '.join("-name '{0}'".format(pattern) for pattern in COMPRESS_PATTERN))
     ))
 
-def s3(bucket):
-    dist()
-    compress()
-
+def _s3(bucket):
     flags = '--progress --acl-public'
 
     local("s3cmd sync {path}/ s3://{bucket}/ {flags} --exclude=*.* {include} --add-header='Content-Encoding:gzip'".format(
@@ -64,24 +62,18 @@ def s3(bucket):
         include=' '.join('--include={0}'.format(pattern) for pattern in COMPRESS_PATTERN)
     ))
 
-    local("s3cmd sync {path}/ s3://{bucket}/ {flags} --delete-removed".format(
+    local("s3cmd sync {path}/ s3://{bucket}/ {flags} --delete-removed --cf-invalidate".format(
         path=env.dist_path.rstrip('/'),
         bucket=bucket,
         flags=flags
     ))
 
-def s3_stage():
-    s3(env.s3_stage)
+def stage():
+    dist('stageconf.py')
+    compress()
+    _s3(env.stage)
 
-def s3_publish():
-    s3(env.s3_publish)
-
-@hosts(production)
 def publish():
     dist()
-    project.rsync_project(
-        remote_dir=dest_path.rstrip('/') + '/',
-        local_dir=env.dist_path.rstrip('/') + '/',
-        delete=True,
-        extra_opts='--checksum'
-    )
+    compress()
+    _s3(env.production)
