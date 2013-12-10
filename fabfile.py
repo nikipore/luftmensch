@@ -13,7 +13,12 @@ env.dist_path = 'dist'
 env.production = 'luftmensch.net'
 env.stage = 'staging.luftmensch.net'
 
-COMPRESS_PATTERN = ('*.html', '*.xml', '*.css', '*.js')
+COMPRESS_PATTERN = (
+    ('*.html', 'text/html'),
+    ('*.xml', 'application/xml'),
+    ('*.css', 'text/css'),
+    ('*.js', 'application/javascript')
+)
 
 def clean():
     for path in (env.build_path, env.dist_path):
@@ -47,36 +52,42 @@ def dist(config='publishconf.py'):
     local("find {dist_path} -name '.DS_Store' -exec rm {{}} \;".format(**env))
 
 def compress():
+    if not COMPRESS_PATTERN:
+        return
     local("find {dist_path} {conditions} -exec gzip -9n {{}} \; -exec mv {{}}.gz {{}} \;".format(
         dist_path=env.dist_path,
-        conditions='\( {0} \)'.format(' -o '.join("-name '{0}'".format(pattern) for pattern in COMPRESS_PATTERN))
+        conditions='\( {0} \)'.format(' -o '.join("-name '{0}'".format(pattern) for (pattern, _) in COMPRESS_PATTERN))
     ))
 
-def _s3(bucket, options=None):
+def _s3(bucket, options=None, invalidate=False):
     options = ' '.join(options or [])
 
-    local("s3cmd sync {path}/ s3://{bucket}/ {options} --exclude=*.* {include} --add-header='Content-Encoding:gzip'".format(
+    for (pattern, mimetype) in COMPRESS_PATTERN:
+        local("s3cmd sync {path}/ s3://{bucket}/ {options} --exclude=*.* {include} {mimetype} --add-header='Content-Encoding:gzip'".format(
+            path=env.dist_path.rstrip('/'),
+            bucket=bucket,
+            options=options,
+            include='--include={0}'.format(pattern),
+            mimetype='--mime-type={0}'.format(mimetype)
+        ))
+
+    local("s3cmd sync {path}/ s3://{bucket}/ {options}{invalidate} --delete-removed".format(
         path=env.dist_path.rstrip('/'),
         bucket=bucket,
         options=options,
-        include=' '.join('--include={0}'.format(pattern) for pattern in COMPRESS_PATTERN)
-    ))
-
-    local("s3cmd sync {path}/ s3://{bucket}/ {options} --delete-removed".format(
-        path=env.dist_path.rstrip('/'),
-        bucket=bucket,
-        options=options
+        invalidate=' --cf-invalidate' if invalidate else ''
     ))
 
 def stage():
     dist('stageconf.py')
     compress()
-    _s3(env.stage, ('--no-progress', '--acl-public'))
+    _s3(env.stage, ('-M', '--no-progress', '--acl-public'))
 
 def publish():
     dist()
     compress()
     _s3(
         env.production,
-        ('--no-progress', '--acl-public', '--cf-invalidate', "--add-header='Cache-Control:max-age 86400'")
+        ('--no-progress', '--acl-public', "--add-header='Cache-Control:max-age 86400'"),
+        True
     )
