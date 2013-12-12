@@ -62,19 +62,26 @@ def compress():
         conditions='\( {0} \)'.format(' -o '.join("-name '{0}'".format(pattern) for pattern in COMPRESS_PATTERN))
     ))
 
-def _s3(bucket):
+def _s3(bucket, invalidate=False):
+    options = list(S3_DEFAULT_OPTIONS)
+    if invalidate:
+        options.append('--cf-invalidate')
+
     command = 's3cmd sync {path}/ s3://{bucket}/ {options}'.format(
         path=env.dist_path.rstrip('/'),
         bucket=bucket,
         options=' '.join(S3_DEFAULT_OPTIONS)
     )
 
-    local("{command} --skip-existing --exclude=*.* {include} --add-header='Content-Encoding:gzip'".format(
+    local("{command} --exclude=*.* {include} --add-header='Content-Encoding:gzip'".format(
         command=command,
         include=' '.join("--include='{0}'".format(pattern) for pattern in COMPRESS_PATTERN)
     ))
 
-    local("{command} --cf-invalidate --delete-removed".format(command=command))
+    local("{command} {invalidate}--delete-removed".format(
+        command=command,
+        invalidate='--cf-invalidate ' if invalidate else ''
+    ))
 
 def stage():
     dist('stageconf.py')
@@ -84,4 +91,4 @@ def stage():
 def publish():
     dist()
     compress()
-    _s3(env.production)
+    _s3(env.production, invalidate=True)
