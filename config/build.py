@@ -2,8 +2,6 @@
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
 
-import os
-
 AUTHOR = u'Jan Müller'
 SITENAME = u'luft·mensch'
 SITESUBTITLE = u'One more concerned with intellectual pursuits than practical matters.'

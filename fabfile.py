@@ -5,13 +5,18 @@ import glob
 import os
 
 # Local path configuration (can be absolute or relative to fabfile)
+env.config_path = 'config'
 env.build_path = 'output'
 env.content_path = 'content'
 env.dist_path = 'dist'
 
+env.conf_build = os.path.join(env.config_path, 'build.py')
+env.conf_stage = os.path.join(env.config_path, 'stage.py')
+env.conf_production = os.path.join(env.config_path, 'production.py')
+
 # Remote server configuration
-env.production = 'luftmensch.net'
 env.stage = 'staging.luftmensch.net'
+env.production = 'luftmensch.net'
 
 COMPRESS_PATTERN = ('*.html', '*.xml', '*.css', '*.js')
 
@@ -29,14 +34,14 @@ def clean():
             local('rm -rf {0}'.format(path))
 
 def build():
-    local('pelican -s pelicanconf.py -o {build_path} {content_path}'.format(**env))
+    local('pelican -s {conf_build} -o {build_path} {content_path}'.format(**env))
 
 def rebuild():
     clean()
     build()
 
 def regenerate():
-    local('pelican -r -s pelicanconf.py -o {build_path} {content_path}'.format(**env))
+    local('pelican -r -s {conf_build} -o {build_path} {content_path}'.format(**env))
 
 def serve():
     local('cd {build_path} && python -m SimpleHTTPServer'.format(**env))
@@ -45,7 +50,7 @@ def reserve():
     build()
     serve()
 
-def dist(config='publishconf.py'):
+def dist(config=env.conf_production):
     local('pelican -d -s {config} -o {dist_path} {content_path}'.format(
         config=config,
         dist_path=env.dist_path,
@@ -83,11 +88,11 @@ def _s3(bucket, invalidate=False):
     ))
 
 def stage():
-    dist('stageconf.py')
+    dist(env.conf_stage)
     compress()
     _s3(env.stage)
 
-def publish():
+def production():
     dist()
     compress()
     _s3(env.production, invalidate=True)
