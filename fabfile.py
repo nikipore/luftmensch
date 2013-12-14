@@ -70,7 +70,7 @@ def _s3(bucket, invalidate=False):
     command = 's3cmd sync {path}/ s3://{bucket}/ {options}'.format(
         path=env.dist_path.rstrip('/'),
         bucket=bucket,
-        options=' '.join(S3_DEFAULT_OPTIONS)
+        options=' '.join(options)
     )
 
     local("{command} --exclude=*.* {include} --add-header='Content-Encoding:gzip'".format(
@@ -78,9 +78,8 @@ def _s3(bucket, invalidate=False):
         include=' '.join("--include='{0}'".format(pattern) for pattern in COMPRESS_PATTERN)
     ))
 
-    local("{command} {invalidate}--delete-removed".format(
-        command=command,
-        invalidate='--cf-invalidate ' if invalidate else ''
+    local("{command} --delete-removed".format(
+        command=command
     ))
 
 def stage():
