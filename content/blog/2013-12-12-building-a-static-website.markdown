@@ -25,7 +25,7 @@ Static content providers are available on very high quality, performance and ava
 I am planning to share the cool stuff and the gotchas I've come across in a series of posts. The topics I've got in mind so far are
 
 * [choosing a static website generator and setting it up]({filename}2013-12-22-building-a-static-website-1-the-site-generator.markdown)
-* ditto for a static content provider
+* [choosing a static content provider]({filename}2014-01-05-building-a-static-website-2-the-content-provider.markdown)
 * setting up a toolchain for build, preview and version control
 * supercharge your website using a CDN
 * styling your website (theming, responsive layout, code snippets and syntax highlighting)
