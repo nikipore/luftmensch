@@ -27,13 +27,7 @@ In the Linux world, the generic answer is "set up a [udev](http://en.wikipedia.o
 
 ###Writing a service wrapper###
 
-As a prerequisite for any of the aforementioned variants, we need to wrap the `squeezelite` executable as a service. How to accomplish this is of interest in its own right. First, create a folder to host the service wrapper:
-
-``` sh
-$ md '/Library/Application Support/squeezelite/'
-```
-
-Now, run the following command:
+As a prerequisite for any of the aforementioned variants, we need to wrap the `squeezelite` executable as a service. How to accomplish this is of interest in its own right. A a warmup, run the following command:
 
 ``` sh
 $ squeezelite -l
@@ -42,13 +36,19 @@ Output devices:
   2 - C-Media USB Headphone Set   [Core Audio]
 ```
 
-It shows the available output devices of your computer. My external USB DAC has the device number 2. Make the script executable and test whether it works correctly (you can stop the `squeezelite` process with `Ctrl-C`):
+It shows the available output devices of your computer. My external USB DAC has the device number 2. Test whether it works correctly (you can stop the `squeezelite` process with `Ctrl-C`):
 
 ```sh
 $ /usr/local/bin/squeezelite -o 2 -m 00:00:00:00:00:02
 ```
 
-The `-m` option sets a dummy MAC which should be unique for each player instance. This allows the Logitech Media Server to save the player state over disconnects or restarts. Set up a file `squeezelite.n.plist` for each relevant output device `n`:
+The `-m` option sets a dummy MAC which should be unique for each player instance. This allows the Logitech Media Server to save the player state over disconnects or restarts. Now, create a folder to host the service wrapper:
+
+``` sh
+$ md '/Library/Application Support/squeezelite/'
+```
+
+Create a file `squeezelite.n.plist` in this folder for each relevant output device `n`:
 
 <div data-gist-id="8608886" data-gist-file="squeezelite.n.plist"></div>
 
@@ -119,7 +119,7 @@ In my case, the product ID would be 12 and the vendor ID would be 3468. This is 
 
 <div data-gist-id="8608886" data-gist-file="squeezelite.2.plist"></div>
 
-Now, load the service again and use `ps -A` to convince yourself that `squeezelite` is only running when the USB device is connected. If you wish to load the service at boot time, you should write-protect the service definition and then link it to `/Library/LaunchDaemons':
+Now, load the service again and use `ps -A` to convince yourself that `squeezelite` is only running when the USB device is connected. If you wish to load the service at boot time, you should write-protect the service definition and then link it to `/Library/LaunchDaemons`:
 
 ``` sh
 $ sudo chown -R root:wheel '/Library/Application Support/squeezelite/'
