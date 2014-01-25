@@ -127,4 +127,4 @@ $ sudo chmod 644 '/Library/Application Support/squeezelite/squeezelite.2.plist'
 $ sudo ln -s '/Library/Application Support/squeezelite/squeezelite.2.plist' /Library/LaunchDaemons
 ```
 
-Reboot and have fun!
+You should also specify a non-privileged user -- I have a media user `tv` on my machine for such purposes, cf. the extra `UserName` key in my service definition file -- because you wouldn't want to run any service with root privileges if you don't have to. Reboot and have fun!
