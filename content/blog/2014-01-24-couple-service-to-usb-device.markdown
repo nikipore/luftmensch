@@ -119,10 +119,12 @@ In my case, the product ID would be 12 and the vendor ID would be 3468. This is 
 
 <div data-gist-id="8608886" data-gist-file="squeezelite.2.plist"></div>
 
-Now, load the service again and use `ps -A` to convince yourself that `squeezelite` is only running when the USB device is connected. If you wish to load the service at boot time, you have to link the service definition as follows:
+Now, load the service again and use `ps -A` to convince yourself that `squeezelite` is only running when the USB device is connected. If you wish to load the service at boot time, you should write-protect the service definition and then link it to `/Library/LaunchDaemons':
 
 ``` sh
-$ ln -s '/Library/Application Support/squeezelite/squeezelite.2.plist' /Library/LaunchDaemons
+$ sudo chown -R root:wheel '/Library/Application Support/squeezelite/'
+$ sudo chmod 644 '/Library/Application Support/squeezelite/squeezelite.2.plist'
+$ sudo ln -s '/Library/Application Support/squeezelite/squeezelite.2.plist' /Library/LaunchDaemons
 ```
 
 Reboot and have fun!
