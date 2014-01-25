@@ -33,11 +33,7 @@ As a prerequisite for any of the aforementioned variants, we need to wrap the `s
 $ md '/Library/Application Support/squeezelite/'
 ```
 
-Then, create the following script:
-
-<div data-gist-id="8608886" data-gist-file="squeezelite.sh"></div>
-
-It takes the output device number as its first argument and checks whether the output is available. If so, it fires up a `squeezelite` instance with a fictitious MAC of zeros, ending with the output device number. This allows the Logitech Media Server to tell the different players apart. In particular, the server remembers the state of the player even when it is temporarily disconected or turned off. Now, run the following command:
+Now, run the following command:
 
 ``` sh
 $ squeezelite -l
@@ -49,19 +45,17 @@ Output devices:
 It shows the available output devices of your computer. My external USB DAC has the device number 2. Make the script executable and test whether it works correctly (you can stop the `squeezelite` process with `Ctrl-C`):
 
 ```sh
-$ chmod +x '/Library/Application Support/squeezelite/squeezelite.sh'
-$ '/Library/Application Support/squeezelite/squeezelite.sh' 2
-Starting squeezelite (00:00:00:00:00:02) ---   2 - C-Media USB Headphone Set   [Core Audio]
+$ /usr/local/bin/squeezelite -o 2 -m 00:00:00:00:00:02
 ```
 
-Set up a file `squeezelite.n.plist` for each relevant output device `n`:
+The `-m` option sets a dummy MAC which should be unique for each player instance. This allows the Logitech Media Server to save the player state over disconnects or restarts. Set up a file `squeezelite.n.plist` for each relevant output device `n`:
 
 <div data-gist-id="8608886" data-gist-file="squeezelite.n.plist"></div>
 
 It specifies a `launchd` service `squeezelite-n` which keeps alive an instance of the process launched by the command
 
 ``` sh
-$ '/Library/Application Support/squeezelite/squeezelite.sh' n
+$ /usr/local/bin/squeezelite -o n -m 00:00:00:00:00:0n
 ```
 
 In my case, there would be one file `squeezelite.2.plist`. Test whether the service starts ...
@@ -72,7 +66,6 @@ $ launchctl list | grep squeezelite
 13854   -   0x7fe4d0c6e8f0.anonymous.squeezelite
 13850   -   squeezelite-2
 $ ps -A | grep squeezelite | grep -v grep 
-13850 ??         0:00.00 /bin/bash /Library/Application Support/squeezelite/squeezelite.sh 2
 13854 ??         0:00.28 /usr/local/bin/squeezelite -o 2 -m 00
 ```
 
@@ -86,26 +79,26 @@ $ ps -A | grep squeezelite | grep -v grep
 
 ###Couple the service launch to a USB event###
 
-That's it for the `launchd` service wrapper. Now you have to couple the launch of this service to the attachment of a USB device. To that end, insert the following key-value pairs in the `dict` of `squeezelite.n.plist`
+That's it for the `launchd` service wrapper. Now you have to couple the launch of this service to the attachment of a USB device. To that end, add the following key-value pairs to the `dict` of `squeezelite.n.plist`
 
 ``` xml
-  <key>LaunchEvents</key>
+<key>LaunchEvents</key>
+<dict>
+  <key>com.apple.iokit.matching</key>
   <dict>
-    <key>com.apple.iokit.matching</key>
+    <key>com.apple.device-attach</key>
     <dict>
-      <key>com.apple.device-attach</key>
-      <dict>
-        <key>idProduct</key>
-        <integer>...</integer>
-        <key>idVendor</key>
-        <integer>...</integer>
-        <key>IOProviderClass</key>
-        <string>IOUSBDevice</string>
-        <key>IOMatchStream</key>
-        <true/>
-      </dict>
+      <key>idProduct</key>
+      <integer>...</integer>
+      <key>idVendor</key>
+      <integer>...</integer>
+      <key>IOProviderClass</key>
+      <string>IOUSBDevice</string>
+      <key>IOMatchStream</key>
+      <true/>
     </dict>
   </dict>
+</dict>
 ```
 
 Find out product and vendor ID of the USB device in question:
@@ -126,7 +119,7 @@ In my case, the product ID would be 12 and the vendor ID would be 3468. This is 
 
 <div data-gist-id="8608886" data-gist-file="squeezelite.2.plist"></div>
 
-Now, load the service again and use `ps -A` and convince yourself that `squeezelite` is only running when the USB device is connected. If you wish to load the service at boot time, you have to link the service definition as follows:
+Now, load the service again and use `ps -A` to convince yourself that `squeezelite` is only running when the USB device is connected. If you wish to load the service at boot time, you have to link the service definition as follows:
 
 ``` sh
 $ ln -s '/Library/Application Support/squeezelite/squeezelite.2.plist' /Library/LaunchDaemons
