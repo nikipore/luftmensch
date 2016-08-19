@@ -31,7 +31,7 @@ Summarizing, I believe you're well-advised  to let your choice be influenced str
 
 ###Setting up Pelican###
 
-You just follow Pelican's [documentation](http://docs.getpelican.com/en/latest/getting_started.html#installing-pelican). It explains the installation process well and completely, so I do not write that down here. I rather would like to stress some points which I find important:
+You just follow Pelican's [documentation](http://docs.getpelican.com/en/latest/install.html). It explains the installation process well and completely, so I do not write that down here. I rather would like to stress some points which I find important:
 
 * I *highly* recommend that you create a virtual Python environment for your Pelican installation. If you don't know how and why you should do this, read the [virtualenv](www.virtualenv.org/) documentation. Really, you should never, ever mess up your system's Python installation with anything.[^2]
 * You should take your site under version control. I am using Git and store the contents of my site [here](https://github.com/nikipore/luftmensch). Create a new repo following these [instructions](https://help.github.com/articles/create-a-repo).

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*- #
 from __future__ import unicode_literals
+import os
 
 AUTHOR = u'Jan Müller'
 SITENAME = u'luft·mensch'
@@ -61,14 +62,13 @@ WEBASSETS = True
 """
 plugins
 """
-PLUGIN_PATH = '../pelican-plugins'
+PLUGIN_PATHS = [os.path.expanduser('~/git/pelican-plugins')]
 PLUGINS = ()
 
-PLUGINS += ('assets', 'optimize_images')
+PLUGINS += ('assets', 'optimize_images', 'tag_cloud')
 
 PLUGINS += (
-    'liquid_tags.img', 'liquid_tags.video', 'liquid_tags.youtube'
-    , 'liquid_tags.include_code', 'liquid_tags.notebook'
+    'liquid_tags.img', 'liquid_tags.video', 'liquid_tags.youtube', 'liquid_tags.include_code'
 )
 
 """
