@@ -15,7 +15,7 @@ The list of requirements for my new setup reads as follows:
 * Based upon a standard and small Linux distribution, ideally a Debian derivative which supports onboard, external Wi-Fi, and HiFiBerry DAC+ support out-of-the-box (no self-compiled kernels).
 * Very simple to set up and maintain, tolerant against hard power on and off.
 * This implies an SD card friendly setup with read-only or "mostly" read-only mode.
-* Works as audio endpoint for the following protocols: Roon (must), Apple Airport (must), Chromecast (nice-to-have), Bluetooth (nice-to-have)
+* Works as audio endpoint for the following protocols: Roon (must), AirPlay (must), Chromecast (nice-to-have), Bluetooth (nice-to-have)
 
 ###Install Raspbian Lite###
 
@@ -64,7 +64,7 @@ $ sudo rm /etc/localtime && sudo ln -s /usr/share/zoneinfo/Europe/Berlin /etc/lo
 
 ###Host Name###
 
-Time to set up the host name. It should be something mnemonic; I'll use `roonbridge` for now. The first step should be to assign the host name on your router server (if it allows to set host names based on the MAC address), so connecting via `ssh` in is a lot easier. The second step is to have the Pi itself infer it correctly, because the result of the command `hostname` is shown in Roon Control and also in the Apple Airport device name.
+Time to set up the host name. It should be something mnemonic; I'll use `roonbridge` for now. The first step should be to assign the host name on your router server (if it allows to set host names based on the MAC address), so connecting via `ssh` is a lot easier. The second step is to have the Pi itself infer it correctly, because the result of the command `hostname` is shown in Roon Control and also in the AirPlay device name.
 
 If you prefer to set the host name to a static value:
 ```
@@ -82,7 +82,7 @@ $ echo unset old_host_name > /etc/dhcp/dhclient-enter-hooks.d/unset_old_hostname
 $ exit
 ```
 
-I usually choose the first option (static) because I find that the services of the Roon and Apple Airport endpoints start up so early that the host hasn't obtained a DHCP lease and DNS entry yet so they will show `localhost` unless the corresponding services are restarted explicitly. I could probably look deeper into the details of the service startup dependencies, but I don't feel it is worth the trouble.
+I usually choose the first option (static) because I find that the services of the Roon and AirPlay endpoints start up so early that the host hasn't obtained a DHCP lease and DNS entry yet so the corresponding services will show `localhost` unless they are restarted explicitly. I could probably look deeper into the details of the service startup dependencies, but I don't feel it is worth the trouble.
 
 ###Setup Wi-Fi###
 
@@ -118,7 +118,7 @@ If the `inet addr` field has an address beside it, the Pi has connected to the n
 
 ###External Wi-Fi Adapter###
 
-In the bathroom, the onboard Wi-Fi reception is so weak that I had to resort to an external Wi-Fi Adapter (TP-Link TL-WN822N). It shows up as `wlan1`, so deactivate onboard Wi-Fi which will free the `wlan0` device in favor of the external Wi-Fi adapter upon reboot:
+In the bathroom, the onboard Wi-Fi reception is so weak that I had to resort to an external Wi-Fi Adapter (TP-Link TL-WN822N). Running `ifconfig`, it shows up as `wlan1`, so deactivate onboard Wi-Fi which will free the `wlan0` device in favor of the external Wi-Fi adapter upon reboot:
 ``` sh
 $ sudo vi /etc/modprobe.d/disable-onboard-wifi.conf
 blacklist brcmfmac
@@ -245,9 +245,24 @@ $ rm -r /var/roon/RAATServer/Logs && ln -s /var/log /var/roon/RAATServer/Logs
 $ rm -r /var/roon/RoonBridge/Logs && ln -s /var/log /var/roon/RoonBridge/Logs
 ```
 
-###Airplay###
+In order to avoid that your RAM disk runs full, you should point `logrotate` at the logs. To that end, create a config file `/etc/logrotate.d/roon` with the following content:
+``` sh
+$ sudo vi /etc/logrotate.d/roon
+/var/roon/RoonBridge/Logs/RoonBridge_log.txt
+/var/roon/RAATServer/Logs/RAATServer_log.txt
+{
+    rotate 7
+    daily
+    missingok
+    notifempty
+    copytruncate
+    compress
+}
+```
 
-I find it very nice to have other endpoints besides the RoonBridge, the most relevant being Airplay. Chromecast seems to be possible but is not on top of my list. Bluetooth has lower quality, is fiddly to set up and therefore has low priority for me, but Airplay has CD quality, is straightforward to set up and works nicely side by side with the RoonBridge; both claim exclusive control of the sound card before playing and release control when they are done.
+###AirPlay###
+
+I find it very nice to have other endpoints besides the RoonBridge, the most relevant being AirPlay. Chromecast seems to be possible but is not on top of my list. Bluetooth has lower quality, is fiddly to set up and therefore has low priority for me, but AirPlay has CD quality, its implementation [Shairport Sync](https://github.com/mikebrady/shairport-sync) is straightforward to set up and works nicely side by side with the RoonBridge; both claim exclusive control of the sound card before playing and release control when they are done.
 
 Since there is only a Debian 9 (Stretch) package, and Raspbian Lite is Debian 8 (Jessie) at the time of writing, you have to roll your own. Don't worry, it's simple and straightforward. Just follow the instructions at the [GitHub site](https://github.com/mikebrady/shairport-sync):
 ``` sh
@@ -338,6 +353,5 @@ alsa =
 
 ###To Do###
 
-- logrotate for RoonBridge
-- Resize with VirtualBox and GParted Live CD
+- Resize root partition with VirtualBox and GParted Live CD
 - Bluetooth
