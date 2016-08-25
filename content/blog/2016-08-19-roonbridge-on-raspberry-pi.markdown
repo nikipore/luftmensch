@@ -7,7 +7,7 @@ Long time no see ... did I mention that [I am a music junkie and Squeezebox fan]
 
 Although I still own a Squeezebox Radio and a Touch, all serious players are squeezelite clients running on Macs and Raspberry Pis with HifiBerry DAC+ sound cards or external DACs and therefore in geek territory. For the Pis, I use the [piCorePlayer](https://sites.google.com/site/picoreplayer/home) distribution which is foolproof because it is specialized on running a squeezelite client and runs in read-only mode; after booting it doesn't require the SD card any more, so you can power off simply by unplugging it from the wall outlet. With such a setup, the chances that my Mom (in her 70s and 200 kms away) needs my support because anything becomes inconsistent are greatly diminished.
 
-Modding always pushes my geek and gearhead buttons, so I reconsidered my current solution and came across [Roon](https://roonlabs.com/) which since release 1.2 comes with RoonBridge, an audio endpoint for standard hardware (Mac, Windows, and Linux) and hence for the whole spectrum of audio hardware; you could call it squeezelite for Roon. I got hooked immediately and started to experiment with my living room Mac mini which hosts the music (as before), runs the Roon core (instead of Logitech Media Server) and a bridge (instead of squeezelite) plus one Raspberry Pi 3 with HiFiBerry DAC+ as prototype endpoint for the other rooms. You don't leave a marvelous, free, and long-term stable solution like the Squeezebox ecosystem lightly, but in the end I shelled out the $500 for a Roon lifetime membership with pleasure and said farewell to Squeezebox -- unless my Mom would be needing my support, that is. In fact, she'll stay outside geek territory because she can now get away with my retired Logitech hardware.
+Modding always pushes my geek and gearhead buttons, so I reconsidered my current solution and came across [Roon](https://roonlabs.com/) which since release 1.2 comes with RoonBridge, an audio endpoint for standard hardware (Mac, Windows, and Linux) and hence for the whole spectrum of audio hardware; you could call it squeezelite for Roon. I got hooked immediately and started to experiment with my living room Mac mini which hosts the music (as before), runs the Roon core (instead of Logitech Media Server) and a bridge (instead of squeezelite) plus one Raspberry Pi 3 with HiFiBerry DAC+ as prototype endpoint for the other rooms. You don't leave a marvelous, free, and long-term stable solution like the Squeezebox ecosystem lightly, but in the end I shelled out the $500 for a Roon lifetime membership with pleasure and said farewell to Squeezebox — unless my Mom would be needing my support, that is. In fact, she'll stay outside geek territory because she can now get away with my retired Logitech hardware.
 
 The list of requirements for my new setup reads as follows:
 
@@ -123,6 +123,16 @@ In the bathroom, the onboard Wi-Fi reception is so weak that I had to resort to 
 $ sudo vi /etc/modprobe.d/disable-onboard-wifi.conf
 blacklist brcmfmac
 blacklist brcmutil
+$ sudo reboot
+```
+
+###Disable Onboard Bluetooth###
+
+You might also have wanted to disable onboard Wi-Fi in order to reduce power consumption and radiation, so here is how to disable Bluetooth as well:
+``` sh
+$ sudo vi /etc/modprobe.d/disable-bluetooth.conf
+blacklist btbcm
+blacklist hci_uart
 $ sudo reboot
 ```
 
@@ -256,6 +266,7 @@ $ sudo vi /etc/logrotate.d/roon
     missingok
     notifempty
     copytruncate
+    delaycompress
     compress
 }
 ```
@@ -301,7 +312,7 @@ and test it from an iOS device.
 
 ###SD Card Backup###
 
-Now you have a shiny new SD card image which you can backup and reuse for other Raspberry Pis -- I've got 5, most of them identical, save the external Wi-Fi stuff for my bathroom endpoint and an external DAC/AMP for my headphone endpoint. The steps to remove `.bash_history` and `.lesshst` are optional, but the cleanup of the Roon data isn't. Roon generates unique IDs at first startup and will not be able to tell the clones apart from the master:
+Now you have a shiny new SD card image which you can backup and reuse for other Raspberry Pis — I've got 5, most of them identical, save the external Wi-Fi stuff for my bathroom endpoint and an external DAC/AMP for my headphone endpoint. The steps to remove `.bash_history` and `.lesshst` are optional, but the cleanup of the Roon data isn't. Roon generates unique IDs at first startup and will not be able to tell the clones apart from the master:
 ``` sh
 $ sudo su -
 $ rm -r /var/roon/*/* && ln -s /var/log /var/roon/RAATServer/Logs && ln -s /var/log /var/roon/RoonBridge/Logs
@@ -332,6 +343,17 @@ $ reboot
 
 That's it. Really, very simple.
 
+###Shrink Root Partition###
+
+If you weren't able to burn your master image to another SD card because the target SD card is too small, you have to shrink the master's root partition. You can run into this situation even when the source and target SD cards are apparently identical (same make and model) — I did.
+
+While expanding is straightforward and risk-free on a running Pi (we did it using `raspi-config` a few lines above), shrinking isn't. I find the safest and easiest way to use a [GParted Live CD](http://gparted.org/livecd.php) which you can boot directly from the image with a VM software like [VirtualBox](https://www.virtualbox.org/). Just download the i686 version, create a new generic "Linux 32-bit" virtual machine, and select the downloaded image. After booting the Live CD, plug the (too large) source SD card into the host compuer, associate the USB device with the VM, and resize the root partition as you like. GParted essentially performs two operations:
+
+1. It applies `resize2fs` which moves the file system in the partition into a contiguous space of the target size which renders the tail of the partition vacant.
+2. It truncates the tail of the partition s.t. the partition size equals the new file system size.
+
+Et voilà, if you are using 4 GB cards, you are a happy owner of a 4–ε GB master image which should fit any clone. I also tried the more elegant approach to apply this operation directly to an image of the card (as opposed to the card itself) mounting that image with `diskutil` and acquainting it with the GParted VM, but to no avail; I didn't persist too much, though.
+
 ###USB DAC###
 
 Add the following line to `/etc/modprobe.d/alsa-base.conf`:
@@ -353,5 +375,4 @@ alsa =
 
 ###To Do###
 
-- Resize root partition with VirtualBox and GParted Live CD
-- Bluetooth
+- Bluetooth audio (both TX and RX)
