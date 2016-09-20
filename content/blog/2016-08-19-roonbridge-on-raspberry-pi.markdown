@@ -373,6 +373,15 @@ alsa =
 };
 ```
 
+I have found that sometimes the boot sequence is so fast that the USB card doesn't power up quickly enough to be recognized properly. In that case, you can have your Pi take a breath before booting like this:
+```sh
+$ sudo vi /boot/config.txt
+[...]
+# Wait for (x * 1000 + y) milliseconds before loading kernel.
+boot_delay=x
+boot_delay_ms=y
+```
+
 ###To Do###
 
 - Bluetooth audio (both TX and RX)
